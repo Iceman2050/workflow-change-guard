@@ -1,0 +1,54 @@
+name: "Workflow Change Guard"
+description: >-
+  Fail CI when .github/workflows/ files are added or modified by someone not
+  on the trusted allowlist. A defense against supply-chain attacks like the
+  October 2026 GhostAction campaign, which pushed a malicious
+  .github/workflows/security-audit.yml into 30,000+ repositories via
+  compromised maintainer accounts. By Ingenious AI.
+author: "Ingenious AI"
+
+branding:
+  icon: "shield"
+  color: "red"
+
+inputs:
+  allowlist-path:
+    description: >-
+      Path (relative to the repository root) of the allowlist config listing
+      trusted usernames / org teams allowed to touch workflow files.
+    required: false
+    default: ".workflow-guard.yml"
+  fail-on-add:
+    description: >-
+      'true' (default): fail when an untrusted author ADDS a new workflow
+      file. 'false': adding files only warns.
+    required: false
+    default: "true"
+  github-token:
+    description: >-
+      Token used to verify org/team membership for allowlist entries like
+      'myorg/security-team'. Defaults to the workflow's GITHUB_TOKEN.
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Collect changed files
+      shell: bash
+      run: |
+        git diff --name-status \
+          "${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}" \
+          > "${RUNNER_TEMP}/workflow-guard-diff.txt"
+
+    - name: Run workflow change guard
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+      run: |
+        python3 "${{ github.action_path }}/guard.py" \
+          --author "${{ github.event.pull_request.user.login }}" \
+          --allowlist-path "${{ github.workspace }}/${{ inputs.allowlist-path }}" \
+          --fail-on-add "${{ inputs.fail-on-add }}" \
+          --diff-file "${RUNNER_TEMP}/workflow-guard-diff.txt" \
+          --scan-dir "${{ github.workspace }}"

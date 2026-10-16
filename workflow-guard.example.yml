@@ -1,0 +1,8 @@
+# Example .workflow-guard.yml
+# Copy this to the root of your repository as `.workflow-guard.yml`
+# and list the GitHub usernames (and optionally org/teams) that are
+# allowed to add or modify files under .github/workflows/.
+
+trusted_users:
+  - your-github-username
+  - your-org/security-team   # requires the action's github-token input
