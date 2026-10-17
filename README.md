@@ -1,5 +1,20 @@
 # workflow-change-guard
 
+
+## ⚡ GitHub Action
+
+Run it on pull requests — fails CI when workflow files are touched by untrusted authors:
+
+```yaml
+- uses: actions/checkout@v4
+- uses: Iceman2050/workflow-change-guard@v1
+  with:
+    allowlist-path: '.workflow-guard.yml' # default
+    fail-on-add: 'true' # default
+```
+
+Full input reference: [`action.yml`](./action.yml).
+
 Fail CI when `.github/workflows/` files are added or modified by someone **not** on your trusted allowlist.
 
 ## The problem: the GhostAction campaign (October 2026)
