@@ -17,7 +17,7 @@ The payload looked like a routine "security audit" job, but it quietly exfiltrat
 ```yaml
 trusted_users:
   - your-github-username
-  - your-org/security-team
+  - octo-org/security-team  # your GitHub org / team
 ```
 
 2. Use the action in a workflow (e.g. `.github/workflows/guard.yml`):
